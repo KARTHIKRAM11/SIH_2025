@@ -10,6 +10,7 @@ import RoleSelector from "./RoleSelector"
 import LoginForm from "./LoginForm"
 import CaseReportForm from "./CaseReportForm"
 import WaterQualityForm from "./WaterQualityForm"
+import TestingInstructions from "./TestingInstructions"
 import { ThemeProvider, useTheme } from "./ThemeProvider"
 import { 
   Plus, 
@@ -29,7 +30,7 @@ import healthStatusImage from '@assets/generated_images/Health_status_indicator_
 import waterSafetyImage from '@assets/generated_images/Water_safety_education_infographic_9307d9c9.png'
 import villageImage from '@assets/generated_images/Rural_village_community_illustration_b8b82f5a.png'
 
-type Screen = "login" | "onboarding" | "dashboard" | "case-report" | "water-data" | "alerts" | "education" | "reports" | "settings"
+type Screen = "testing-guide" | "login" | "onboarding" | "dashboard" | "case-report" | "water-data" | "alerts" | "education" | "reports" | "settings"
 
 interface User {
   phoneNumber: string
@@ -110,9 +111,14 @@ function ThemeToggle() {
 }
 
 function DashboardContent() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("login")
+  const [currentScreen, setCurrentScreen] = useState<Screen>("testing-guide")
   const [user, setUser] = useState<User | null>(null)
   const [isOnline, setIsOnline] = useState(true)
+  // Always declare these hooks to avoid conditional hook calls
+  const [onboardingStep, setOnboardingStep] = useState<"role" | "village" | "language">("role")
+  const [selectedRole, setSelectedRole] = useState("")
+  const [selectedVillage, setSelectedVillage] = useState("")
+  const [selectedLanguage, setSelectedLanguage] = useState("en")
 
   //todo: remove mock functionality
   useEffect(() => {
@@ -130,7 +136,10 @@ function DashboardContent() {
 
   const handleLogin = (phoneNumber: string, otp: string) => {
     console.log("Login successful:", phoneNumber, otp)
-    setCurrentScreen("onboarding")
+    // For testing: allow any 6-digit code to login
+    if (otp.length === 6) {
+      setCurrentScreen("onboarding")
+    }
   }
 
   const handleOnboardingComplete = (role: string, villageName: string, language: string) => {
@@ -155,6 +164,14 @@ function DashboardContent() {
     }
   }
 
+  if (currentScreen === "testing-guide") {
+    return (
+      <div className="min-h-screen bg-background">
+        <TestingInstructions onStartTesting={() => setCurrentScreen("login")} />
+      </div>
+    )
+  }
+
   if (currentScreen === "login") {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -177,11 +194,6 @@ function DashboardContent() {
   }
 
   if (currentScreen === "onboarding") {
-    const [onboardingStep, setOnboardingStep] = useState<"role" | "village" | "language">("role")
-    const [selectedRole, setSelectedRole] = useState("")
-    const [selectedVillage, setSelectedVillage] = useState("")
-    const [selectedLanguage, setSelectedLanguage] = useState("en")
-
     //todo: remove mock functionality
     const villages = ["Baridhara Village", "Teliamura Village", "Krishnapur Village", "Rampur Village"]
 

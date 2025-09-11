@@ -23,8 +23,9 @@ export default function LoginForm({ onLogin, isLoading = false }: LoginFormProps
   }
 
   const handleVerifyOTP = () => {
-    if (otp) {
+    if (otp && otp.length === 6) {
       console.log("Verifying OTP:", otp)
+      // For testing: accept any 6-digit code
       onLogin(phoneNumber, otp)
     }
   }
