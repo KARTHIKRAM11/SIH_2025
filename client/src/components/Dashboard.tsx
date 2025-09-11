@@ -25,7 +25,11 @@ import {
   TrendingUp,
   Moon,
   Sun,
-  ArrowLeft
+  ArrowLeft,
+  Play,
+  FileImage,
+  Download,
+  Phone
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import healthStatusImage from '@assets/generated_images/Health_status_indicator_icons_8493858c.png'
@@ -85,26 +89,62 @@ const mockAlerts = [
 const mockEducationMaterials = [
   {
     id: "1",
-    title: "Hand Washing Steps",
-    description: "Step-by-step guide for proper hand washing technique",
+    title: "Proper Handwashing Technique",
+    description: "Essential 20-second handwashing method to prevent waterborne diseases and infections. Follow these 5 critical steps for effective protection.",
     type: "infographic" as const,
-    language: "English",
-    imageUrl: waterSafetyImage
+    language: "English/Assamese",
+    imageUrl: waterSafetyImage,
+    steps: "1. Wet hands with clean water → 2. Apply soap and lather well → 3. Scrub for 20 seconds → 4. Rinse thoroughly → 5. Dry with clean towel",
+    keyTimes: "Before eating, after toilet use, after handling animals, when hands are visibly dirty"
   },
   {
     id: "2", 
-    title: "Safe Water Preparation",
-    description: "Learn how to properly boil and purify water for safe drinking",
+    title: "Safe Water Storage Methods",
+    description: "Community-proven techniques for storing water safely to prevent contamination. Essential household practices for family health protection.",
     type: "poster" as const,
-    language: "অসমীয়া",
-    imageUrl: waterSafetyImage
+    language: "অসমীয়া/Mising",
+    imageUrl: waterSafetyImage,
+    steps: "1. Use clean, covered containers only → 2. Store in cool, dry places → 3. Clean containers weekly → 4. Use ladle to remove water → 5. Never dip hands directly",
+    keyTimes: "Check storage weekly, clean containers before refilling"
   },
   {
     id: "3",
-    title: "ORS Preparation Guide", 
-    description: "Audio instructions for preparing Oral Rehydration Solution",
+    title: "ORS Preparation at Home",
+    description: "Life-saving oral rehydration solution using common household items. Critical skill for treating diarrhea and preventing dehydration deaths.",
+    type: "infographic" as const,
+    language: "English/Assamese",
+    imageUrl: waterSafetyImage,
+    steps: "1. Boil 1L water, cool completely → 2. Add 1/2 tsp salt (3g) → 3. Add 2 tbsp sugar (18g) → 4. Stir until dissolved → 5. Give small sips frequently",
+    keyTimes: "Use within 24 hours, discard if taste changes, seek medical help if vomiting persists"
+  },
+  {
+    id: "4",
+    title: "Village Hygiene Best Practices",
+    description: "Essential hygiene practices to keep your family and community healthy during all seasons, emergencies, and disease outbreaks.",
+    type: "poster" as const,
+    language: "English/Assamese/Mising",
+    imageUrl: waterSafetyImage,
+    steps: "1. Keep areas clean and ventilated → 2. Dispose waste in designated areas → 3. Cook food thoroughly → 4. Use clean utensils → 5. Maintain safe distance from animals",
+    keyTimes: "Daily practices, especially during monsoon season and outbreak periods"
+  },
+  {
+    id: "5",
+    title: "Water Purification Methods",
+    description: "Simple, effective ways to make water safe for drinking when quality is uncertain or during contamination alerts. Could prevent serious illness.",
+    type: "infographic" as const,
+    language: "English/Assamese",
+    imageUrl: waterSafetyImage,
+    steps: "1. Boil water 10+ minutes when contaminated → 2. Use purification tablets as directed → 3. Strain through clean cloth → 4. Store in clean containers → 5. Avoid wells during alerts",
+    keyTimes: "During contamination alerts, after heavy rainfall, when water looks/smells unusual"
+  },
+  {
+    id: "6",
+    title: "Recognizing Waterborne Illness",
+    description: "Early warning signs of water-related diseases and when to seek immediate medical help. Early detection can save lives in your community.",
     type: "audio" as const,
-    language: "বাংলা"
+    language: "বাংলা/Assamese/Mising",
+    steps: "Warning Signs: Diarrhea 2+ days → Persistent vomiting → High fever with stomach pain → Severe dehydration → Multiple family members with similar symptoms",
+    keyTimes: "Seek immediate medical attention, report to ASHA worker, increase ORS intake while seeking help"
   }
 ]
 
@@ -509,20 +549,109 @@ Contact local health authorities for assistance.`
       case "education":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-center">Health Education</h2>
-            <div className="grid gap-4">
-              {mockEducationMaterials.map(material => (
-                <EducationCard
-                  key={material.id}
-                  title={material.title}
-                  description={material.description}
-                  type={material.type}
-                  language={material.language}
-                  imageUrl={material.imageUrl}
-                  onDownload={() => console.log("Downloaded:", material.title)}
-                  onPlay={() => console.log("Playing:", material.title)}
-                />
-              ))}
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold">Health Education Center</h2>
+              <p className="text-muted-foreground">Essential health knowledge for {user?.villageName || 'Majuli'} community</p>
+            </div>
+            
+            {/* Critical Education Materials */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 text-sm font-medium text-green-600 dark:text-green-400">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>Essential Health Practices ({mockEducationMaterials.length} materials)</span>
+              </div>
+              
+              <div className="grid gap-4">
+                {mockEducationMaterials.map(material => (
+                  <div key={material.id} className="bg-card rounded-lg border p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-2 flex-1">
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-semibold text-lg">{material.title}</h3>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            material.type === 'infographic' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
+                            material.type === 'poster' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300' :
+                            'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
+                          }`}>
+                            {material.type}
+                          </span>
+                        </div>
+                        <p className="text-muted-foreground">{material.description}</p>
+                        <div className="text-sm text-primary font-medium">Language: {material.language}</div>
+                        
+                        {(material as any).steps && (
+                          <div className="space-y-2">
+                            <h4 className="font-medium text-sm text-green-600 dark:text-green-400">Step-by-Step Instructions:</h4>
+                            <p className="text-sm bg-green-50 dark:bg-green-950 p-3 rounded-md text-green-700 dark:text-green-300">{(material as any).steps}</p>
+                          </div>
+                        )}
+                        
+                        {(material as any).keyTimes && (
+                          <div className="space-y-2">
+                            <h4 className="font-medium text-sm text-orange-600 dark:text-orange-400">Important Timing:</h4>
+                            <p className="text-sm bg-orange-50 dark:bg-orange-950 p-3 rounded-md text-orange-700 dark:text-orange-300">{(material as any).keyTimes}</p>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="flex flex-col space-y-2 ml-4">
+                        {material.imageUrl ? (
+                          <img src={material.imageUrl} alt={material.title} className="w-16 h-16 rounded-md object-cover" />
+                        ) : (
+                          <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
+                            {material.type === 'audio' ? <Play className="w-8 h-8 text-muted-foreground" /> : <FileImage className="w-8 h-8 text-muted-foreground" />}
+                          </div>
+                        )}
+                        <div className="flex space-x-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => console.log("Downloaded:", material.title)}
+                            data-testid={`button-download-${material.id}`}
+                          >
+                            <Download className="w-4 h-4" />
+                          </Button>
+                          {material.type === 'audio' && (
+                            <Button 
+                              size="sm" 
+                              variant="outline"
+                              onClick={() => console.log("Playing:", material.title)}
+                              data-testid={`button-play-${material.id}`}
+                            >
+                              <Play className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Emergency Contact Info */}
+            <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg p-4 space-y-3">
+              <h3 className="font-semibold text-red-700 dark:text-red-300 flex items-center space-x-2">
+                <Phone className="w-4 h-4" />
+                <span>Emergency Health Contacts</span>
+              </h3>
+              <div className="text-sm text-red-600 dark:text-red-400 space-y-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <p>• <strong>Health Emergency:</strong> 108</p>
+                  <p>• <strong>Ambulance Service:</strong> 104</p>
+                  <p>• <strong>Water Poisoning:</strong> 1075</p>
+                  <p>• <strong>Child Helpline:</strong> 1098</p>
+                </div>
+                <div className="border-t border-red-200 dark:border-red-800 pt-2 mt-3">
+                  <p className="font-medium">Local Support:</p>
+                  <p>• ASHA Worker: Contact through village Panchayat</p>
+                  <p>• Primary Health Center (PHC): Majuli District Hospital</p>
+                  <p>• Water Quality Issues: Report to Block Development Office</p>
+                </div>
+                <div className="bg-red-100 dark:bg-red-900 p-2 rounded text-red-800 dark:text-red-200 text-xs">
+                  <strong>Remember:</strong> In severe emergencies, call 108 immediately. For water contamination, alert entire village through ASHA workers.
+                </div>
+              </div>
             </div>
           </div>
         )
