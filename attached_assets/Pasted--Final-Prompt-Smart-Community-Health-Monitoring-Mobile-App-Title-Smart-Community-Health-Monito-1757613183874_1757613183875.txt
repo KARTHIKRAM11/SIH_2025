@@ -1,0 +1,141 @@
+📲 Final Prompt – Smart Community Health Monitoring Mobile App
+
+Title: Smart Community Health Monitoring Mobile App for Rural Villages
+
+Description:
+Build a cross-platform mobile app (Android + iOS) for ASHA workers, volunteers, and local leaders to monitor water-borne diseases in rural villages. The app must work offline-first, support multiple local languages (Assamese, Bengali, tribal, English), and always show the village name + current status on key screens.
+
+✅ App Features
+1. Login & Onboarding
+
+OTP/PIN-based login (no passwords).
+
+User selects role (ASHA Worker, Volunteer, Local Leader).
+
+User selects/assigns their village name (from list).
+
+Language selection: Assamese, Bengali, tribal, English.
+
+2. Home Dashboard
+
+Display Village Name + Current Status at the top.
+
+Current status color-coded:
+
+🟢 Safe
+
+🟡 Caution
+
+🔴 High Risk
+
+Quick status cards:
+
+🌊 Water Quality (Safe / Warning / Unsafe)
+
+🧑‍⚕️ Cases Reported Today (number)
+
+⚠️ Outbreak Risk (Low / Medium / High)
+
+Main action buttons:
+
+➕ Report Case
+
+💧 Water Data
+
+🔔 Alerts
+
+📖 Education
+
+3. Case Reporting Module
+
+Fields:
+
+Patient Age, Gender
+
+Symptoms (checklist with icons: Fever 🤒, Diarrhea 💧, Vomiting 🤢, Dehydration 🥤)
+
+Severity: Mild / Moderate / Severe
+
+Voice note / Photo upload
+
+Village auto-tagged (based on user profile).
+
+Offline save + sync later.
+
+4. Water Quality Module
+
+Manual entry: pH, turbidity, temperature.
+
+Auto-import if IoT sensor data available.
+
+Trend graph (last 7 days).
+
+Village-level water record maintained.
+
+5. AI Outbreak Prediction
+
+Show outbreak risk per village.
+
+Color-coded risk: 🟢 Low / 🟡 Medium / 🔴 High.
+
+Actionable advice displayed under risk status.
+
+6. Alerts & Notifications
+
+List of village-specific alerts.
+
+Example:
+
+🔴 High Risk detected in Village A – Boil water before drinking.
+
+🟡 Caution: Turbidity rising in Village B.
+
+Share alerts via SMS/WhatsApp.
+
+7. Education Module
+
+Offline posters, infographics, and audios in local languages.
+
+Topics: handwashing 🧼, ORS preparation 🥤, safe water handling 💧, outbreak do’s/don’ts 🚫.
+
+8. Reports & Sync
+
+History of cases and water quality tagged by village.
+
+Filter by village & date.
+
+Sync status indicator (last sync time).
+
+Manual [Sync Now] button.
+
+9. Profile & Settings
+
+User info (name, role).
+
+Assigned village(s).
+
+Language switcher.
+
+Logout & Help.
+
+🛠 Tech Stack
+
+Frontend: React Native or Flutter.
+
+Backend: Firebase / Node.js API.
+
+Database: SQLite (offline) + cloud sync.
+
+AI: Mock API for outbreak prediction (returns Low/Medium/High).
+
+Multilingual: i18n JSON files.
+
+🎨 UI/UX Guidelines
+
+Always show Village Name + Current Status at top of screens.
+
+Color-coded risk indicators.
+
+Large icons + minimal text for low literacy.
+
+Offline-first: every form has “Save Offline” + “Sync Later”.
