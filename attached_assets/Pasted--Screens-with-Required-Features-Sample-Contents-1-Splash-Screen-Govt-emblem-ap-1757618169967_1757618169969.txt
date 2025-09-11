@@ -1,0 +1,88 @@
+
+## 📱 Screens with Required Features & Sample Contents
+
+### 1. Splash Screen
+- Govt emblem + app title  
+- Title: "Smart Health Monitoring"  
+- Subtitle: "Safe Water, Healthy Villages"  
+- Background: White with saffron-green accent line  
+
+### 2. Login & Language
+- Fields: Mobile Number, OTP  
+- Role Selector: ASHA Worker / Volunteer / Local Leader  
+- Language Switch: Assamese | Bengali | Tribal | English  
+- Button: Login  
+
+### 3. Home Dashboard
+- Top bar: Village: Majuli (Assam), Status: ❌ High Risk (Red bar)  
+- Status Cards:  
+  - Water Quality: Unsafe  
+  - Cases Today: 12  
+  - Outbreak Risk: High  
+- Navigation Buttons: Report Case, Water Data, Alerts, Education, People  
+
+### 4. Report Case
+- Fields: Age, Gender, Symptoms (Fever, Diarrhea, Vomiting, Dehydration), Severity (Mild/Moderate/Severe)  
+- Attachments: Add Voice Note, Upload Photo (dummy functionality)  
+- Buttons: Save Offline | Submit Now  
+- Footer: Last Sync: Not Available (Offline Mode)  
+
+### 5. Water Data
+- Fields: pH Value, Turbidity, Temperature  
+- Line Chart: 7-day trend (mock data)  
+- Buttons: Save Offline | Sync Data  
+
+### 6. Outbreak Prediction (Mock AI)
+- Current Risk: ⚠️ Medium Risk (Yellow)  
+- Recommendation Box:  
+  - Boil water before drinking  
+  - Distribute ORS if diarrhea increases  
+- Button: View Recommendations  
+
+### 7. Alerts
+- List of Alerts (mock data)  
+  - ❌ Majuli – High Risk detected  
+  - ⚠️ Dhemaji – Turbidity rising  
+  - ✅ Lakhimpur – Safe zone  
+- Button: Share Alert (SMS/WhatsApp dummy)  
+
+### 8. Education
+- Cards with icon + title + description  
+  - Handwashing Steps  
+  - ORS Preparation Guide  
+  - Safe Water Storage  
+  - Hygiene Do’s & Don’ts  
+- Offline accessible  
+
+### 9. People (Read-only)
+- Title: Village Members – Majuli  
+- Sections: ASHA Workers, Volunteers, Local Leaders  
+- Example Data:  
+  - Rita Devi – ASHA Worker – +91 9876543210  
+  - Amit Kumar – Volunteer – +91 9123456780  
+  - Sanjay Kumar – Panchayat Leader – Ward 3  
+- Read-only note: “Verified by local administration”  
+
+### 10. Reports & Sync
+- Tabs: Cases Reported, Water Data  
+- Example Cases: “12 Sept 2025 – 2 cases submitted”  
+- Example Water Data: “pH: 6.8, Turbidity: 8 NTU, Temp: 27°C”  
+- Sync Info: Last Sync: 12 Sept 2025, 10:15 AM  
+- Button: Sync Now  
+
+### 11. Profile & Settings
+- Fields: Name, Role, Village  
+- Options: Language Switch, Logout, Help & Support  
+
+## 🔑 Functional Rules
+- Every screen shows Village Name + Status bar  
+- All forms: Save Offline → Sync Later  
+- Traffic-light risk codes: ✅ Safe, ⚠️ Caution, ❌ High Risk  
+- Use mock JSON for outbreak predictions and alerts  
+
+## 🎯 Deliverables
+- Generate a **working React Native Expo app** scaffold with TypeScript  
+- Include all screens with navigation + mock data  
+- Reusable components (Card, Button, InputField, StatusBadge)  
+- Example data pre-filled in mock JSON files  
+- Minimal, government-style UI with Indian-flag inspired colors  

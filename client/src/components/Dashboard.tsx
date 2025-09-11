@@ -29,7 +29,8 @@ import {
   Play,
   FileImage,
   Download,
-  Phone
+  Phone,
+  MessageCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import healthStatusImage from '@assets/generated_images/Health_status_indicator_icons_8493858c.png'
@@ -43,6 +44,7 @@ interface User {
   role: string
   villageName: string
   language: string
+  name?: string
 }
 
 //todo: remove mock functionality
@@ -244,6 +246,7 @@ function ThemeToggle() {
 function DashboardContent() {
   const [currentScreen, setCurrentScreen] = useState<Screen>("splash")
   const [user, setUser] = useState<User | null>(null)
+  const [tempUserName, setTempUserName] = useState("") // For profile editing
   const [isOnline, setIsOnline] = useState(true)
   // Always declare these hooks to avoid conditional hook calls
   const [onboardingStep, setOnboardingStep] = useState<"role" | "village" | "language">("role")
@@ -251,6 +254,20 @@ function DashboardContent() {
   const [selectedVillage, setSelectedVillage] = useState("")
   const [selectedLanguage, setSelectedLanguage] = useState("en")
   const [reportTab, setReportTab] = useState<'cases' | 'water'>('cases')
+
+  // Load user from localStorage on app initialization
+  useEffect(() => {
+    const savedUser = localStorage.getItem('healthMonitorUser')
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser)
+        setUser(parsedUser)
+        setCurrentScreen("dashboard")
+      } catch (error) {
+        console.log("Failed to load saved user data")
+      }
+    }
+  }, [])
 
   //todo: remove mock functionality
   useEffect(() => {
@@ -912,35 +929,122 @@ Contact local health authorities for assistance.`
       case "settings":
         return (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-center">Settings</h2>
-            <div className="space-y-4">
-              <div className="p-4 bg-card rounded-lg border">
-                <h3 className="font-semibold mb-2">User Profile</h3>
-                <p className="text-sm text-muted-foreground">Role: {user?.role}</p>
-                <p className="text-sm text-muted-foreground">Village: {user?.villageName}</p>
-                <p className="text-sm text-muted-foreground">Phone: {user?.phoneNumber}</p>
-              </div>
+            <h2 className="text-2xl font-bold text-center">Profile & Settings</h2>
+            
+            {/* User Profile Section */}
+            <div className="p-4 bg-card rounded-lg border space-y-4">
+              <h3 className="font-semibold">User Profile</h3>
               
-              <div className="p-4 bg-card rounded-lg border">
-                <h3 className="font-semibold mb-2">Language</h3>
-                <LanguageSelector
-                  selectedLanguage={user?.language || "en"}
-                  onLanguageChange={(lang) => console.log("Language changed:", lang)}
-                />
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm font-medium">Name</label>
+                  <input 
+                    type="text"
+                    className="w-full mt-1 p-2 border rounded-md bg-background"
+                    value={tempUserName || user?.name || (user?.phoneNumber === "9876543210" ? "Rita Devi" : user?.phoneNumber === "9123456780" ? "Amit Kumar" : "User Name")}
+                    placeholder="Enter your name"
+                    data-testid="input-name"
+                    onChange={(e) => setTempUserName(e.target.value)}
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Role</label>
+                  <div className="w-full mt-1 p-2 border rounded-md bg-muted text-muted-foreground" data-testid="text-role">
+                    {user?.role}
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="text-sm font-medium">Village</label>
+                  <div className="w-full mt-1 p-2 border rounded-md bg-muted text-muted-foreground" data-testid="text-village">
+                    {user?.villageName}
+                  </div>
+                </div>
+                
+                <Button 
+                  className="w-full"
+                  onClick={() => {
+                    if (user && tempUserName.trim()) {
+                      const updatedUser = { ...user, name: tempUserName.trim() }
+                      setUser(updatedUser)
+                      // Persist to localStorage
+                      localStorage.setItem('healthMonitorUser', JSON.stringify(updatedUser))
+                      setTempUserName("") // Clear temp state
+                      console.log("Profile updated and saved successfully")
+                    }
+                  }}
+                  data-testid="button-save-profile"
+                  disabled={!tempUserName.trim()}
+                >
+                  Save Profile
+                </Button>
               </div>
-              
-              <Button 
-                variant="destructive" 
-                className="w-full"
-                onClick={() => {
-                  setUser(null)
-                  setCurrentScreen("login")
-                }}
-                data-testid="button-logout"
-              >
-                Logout
-              </Button>
             </div>
+            
+            {/* Language Settings */}
+            <div className="p-4 bg-card rounded-lg border">
+              <h3 className="font-semibold mb-3">Language Switch</h3>
+              <LanguageSelector
+                selectedLanguage={user?.language || "en"}
+                onLanguageChange={(lang) => {
+                  if (user) {
+                    const updatedUser = { ...user, language: lang }
+                    setUser(updatedUser)
+                    // Persist to localStorage
+                    localStorage.setItem('healthMonitorUser', JSON.stringify(updatedUser))
+                    console.log("Language updated and saved:", lang)
+                  }
+                }}
+              />
+            </div>
+            
+            {/* Help & Support */}
+            <div className="p-4 bg-card rounded-lg border space-y-3">
+              <h3 className="font-semibold">Help & Support</h3>
+              <div className="space-y-2">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => console.log("User guide opened")}
+                  data-testid="button-help-guide"
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  User Guide
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => console.log("Technical support contacted")}
+                  data-testid="button-help-call"
+                >
+                  <Phone className="w-4 h-4 mr-2" />
+                  Technical Support
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => console.log("Feedback form opened")}
+                  data-testid="button-help-feedback"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Send Feedback
+                </Button>
+              </div>
+            </div>
+            
+            {/* Logout */}
+            <Button 
+              variant="destructive" 
+              className="w-full"
+              onClick={() => {
+                setUser(null)
+                setCurrentScreen("login")
+              }}
+              data-testid="button-logout"
+            >
+              Logout
+            </Button>
           </div>
         )
         
