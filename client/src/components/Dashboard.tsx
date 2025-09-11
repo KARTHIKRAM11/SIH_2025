@@ -430,36 +430,104 @@ function DashboardContent() {
           </div>
         )
         
+      case "ai-prediction":
+        return (
+          <div className="space-y-6">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto">
+                <TrendingUp className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+              </div>
+              <h2 className="text-2xl font-bold">AI Outbreak Prediction</h2>
+              <p className="text-muted-foreground max-w-md mx-auto">
+                Artificial Intelligence analyzes health patterns and water quality data to predict potential health risks in your community.
+              </p>
+            </div>
+            
+            <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-4 h-4 bg-green-500 rounded-full"></div>
+                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">Current Risk Assessment</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-700 dark:text-green-300">LOW</p>
+                  <p className="text-sm text-green-600 dark:text-green-400">Overall Risk</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">87%</p>
+                  <p className="text-sm text-blue-600 dark:text-blue-400">Water Safety Score</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">↓15%</p>
+                  <p className="text-sm text-orange-600 dark:text-orange-400">Trend (7 days)</p>
+                </div>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">AI Recommendations:</h4>
+                <ul className="text-sm text-green-700 dark:text-green-300 space-y-1">
+                  <li>• Continue current water monitoring schedule</li>
+                  <li>• Maintain good hygiene practices education</li>
+                  <li>• Monitor seasonal patterns approaching monsoon</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="text-center text-sm text-muted-foreground">
+              <p>Prediction model last updated: 2 hours ago</p>
+              <p>Based on 30 days of health and water quality data</p>
+            </div>
+          </div>
+        )
+        
       default: // dashboard
         return (
           <div className="space-y-6">
+            {/* Risk Status Bar */}
+            <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                  <div>
+                    <h3 className="font-semibold text-green-800 dark:text-green-200">Village Status: SAFE</h3>
+                    <p className="text-sm text-green-600 dark:text-green-300">All systems monitoring normally</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-green-600 dark:text-green-300">Last Updated</p>
+                  <p className="text-xs text-green-700 dark:text-green-200 font-medium">2 min ago</p>
+                </div>
+              </div>
+            </div>
+
             {/* Status Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <StatusCard
-                title="Water Quality"
-                value="Safe"
+                title="Water Sources"
+                value="12/15"
                 icon={Droplets}
                 status="safe"
-                subtitle="pH: 7.2, Clear"
+                subtitle="Safe • pH: 7.2"
                 onClick={() => handleNavigation("water-data")}
               />
               
               <StatusCard
-                title="Cases Today"
-                value={3}
+                title="Health Cases"
+                value="5"
                 icon={Users}
                 status="caution"
-                subtitle="2 mild, 1 moderate"
+                subtitle="This week • 2 resolved"
                 onClick={() => handleNavigation("reports")}
               />
               
               <StatusCard
-                title="Outbreak Risk"
-                value="Low"
+                title="AI Risk Level"
+                value="LOW"
                 icon={TrendingUp}
                 status="safe"
-                subtitle="Monitoring continues"
-                onClick={() => handleNavigation("alerts")}
+                subtitle="Trend: Decreasing"
+                onClick={() => handleNavigation("ai-prediction")}
               />
             </div>
 
