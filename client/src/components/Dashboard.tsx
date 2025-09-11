@@ -149,7 +149,13 @@ function DashboardContent() {
       villageName,
       language
     })
+    console.log("User onboarding complete:", { role, villageName, language })
     setCurrentScreen("dashboard")
+  }
+
+  // Helper function to check if user has write permissions
+  const hasWritePermissions = (userRole: string) => {
+    return userRole !== "village_people"
   }
 
   const handleNavigation = (screen: Screen) => {
@@ -305,6 +311,7 @@ function DashboardContent() {
               setCurrentScreen("dashboard")
             }}
             onSaveOffline={(data) => console.log("Case saved offline:", data)}
+            isReadOnly={!hasWritePermissions(user?.role || "")}
           />
         )
       
@@ -317,6 +324,7 @@ function DashboardContent() {
               setCurrentScreen("dashboard")
             }}
             onSaveOffline={(data) => console.log("Water data saved offline:", data)}
+            isReadOnly={!hasWritePermissions(user?.role || "")}
           />
         )
         
@@ -444,14 +452,16 @@ function DashboardContent() {
 
             {/* Main Actions */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <ActionButton
-                title="Report Case"
-                icon={Plus}
-                onClick={() => handleNavigation("case-report")}
-              />
+              {hasWritePermissions(user?.role || "") && (
+                <ActionButton
+                  title="Report Case"
+                  icon={Plus}
+                  onClick={() => handleNavigation("case-report")}
+                />
+              )}
               
               <ActionButton
-                title="Water Data"
+                title={hasWritePermissions(user?.role || "") ? "Water Data" : "View Water"}
                 icon={Droplets}
                 onClick={() => handleNavigation("water-data")}
               />

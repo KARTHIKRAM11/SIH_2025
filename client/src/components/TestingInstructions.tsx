@@ -17,8 +17,8 @@ export default function TestingInstructions({ onStartTesting }: TestingInstructi
     {
       step: "2. Role Selection", 
       icon: User,
-      description: "Choose from ASHA Worker, Volunteer, or Local Leader",
-      testData: "Try: ASHA Worker for full feature access"
+      description: "Choose from ASHA Worker, Volunteer, Local Leader, or Village People",
+      testData: "Try: ASHA Worker for full access, Village People for view-only"
     },
     {
       step: "3. Village Selection",

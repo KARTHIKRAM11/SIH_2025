@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import { UserCheck, Users, Crown } from "lucide-react"
+import { UserCheck, Users, Crown, User } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface Role {
@@ -27,6 +27,12 @@ const roles: Role[] = [
     title: "Local Leader",
     description: "Village Leader or Administrator",
     icon: Crown,
+  },
+  {
+    id: "village_people",
+    title: "Village People",
+    description: "View-only access for villagers",
+    icon: User,
   },
 ]
 

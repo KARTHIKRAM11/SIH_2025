@@ -22,13 +22,15 @@ interface CaseReportFormProps {
   onSubmit: (caseData: CaseData) => void
   onSaveOffline?: (caseData: CaseData) => void
   isLoading?: boolean
+  isReadOnly?: boolean
 }
 
 export default function CaseReportForm({ 
   villageName, 
   onSubmit, 
   onSaveOffline,
-  isLoading = false 
+  isLoading = false,
+  isReadOnly = false
 }: CaseReportFormProps) {
   const [caseData, setCaseData] = useState<CaseData>({
     patientAge: "",
@@ -68,6 +70,13 @@ export default function CaseReportForm({
         </CardHeader>
         
         <CardContent className="space-y-6">
+          {isReadOnly && (
+            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+              <p className="text-sm text-amber-700 dark:text-amber-300">
+                <strong>View-only mode:</strong> Village people can view reports but cannot create new ones.
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="age">Patient Age</Label>
@@ -78,6 +87,7 @@ export default function CaseReportForm({
                 value={caseData.patientAge}
                 onChange={(e) => setCaseData({...caseData, patientAge: e.target.value})}
                 data-testid="input-patient-age"
+                disabled={isReadOnly}
               />
             </div>
             
@@ -88,6 +98,7 @@ export default function CaseReportForm({
                 onValueChange={(value: "male" | "female" | "other") => 
                   setCaseData({...caseData, patientGender: value})
                 }
+                disabled={isReadOnly}
               >
                 <SelectTrigger data-testid="select-gender">
                   <SelectValue placeholder="Select gender" />
@@ -104,6 +115,7 @@ export default function CaseReportForm({
           <SymptomCheckList
             selectedSymptoms={caseData.symptoms}
             onSymptomsChange={(symptoms) => setCaseData({...caseData, symptoms})}
+            disabled={isReadOnly}
           />
           
           <div className="space-y-3">
@@ -114,6 +126,7 @@ export default function CaseReportForm({
                 setCaseData({...caseData, severity: value})
               }
               className="flex space-x-6"
+              disabled={isReadOnly}
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="mild" id="mild" data-testid="radio-mild" />
@@ -139,32 +152,35 @@ export default function CaseReportForm({
               onChange={(e) => setCaseData({...caseData, notes: e.target.value})}
               rows={3}
               data-testid="textarea-notes"
+              disabled={isReadOnly}
             />
           </div>
           
-          <div className="flex space-x-3 pt-4">
-            <Button 
-              onClick={handleSubmit}
-              disabled={!isValid || isLoading}
-              className="flex-1"
-              size="lg"
-              data-testid="button-submit-case"
-            >
-              {isLoading ? "Submitting..." : "Submit Report"}
-            </Button>
-            
-            {onSaveOffline && (
+          {!isReadOnly && (
+            <div className="flex space-x-3 pt-4">
               <Button 
-                variant="outline"
-                onClick={handleSaveOffline}
-                disabled={!isValid}
+                onClick={handleSubmit}
+                disabled={!isValid || isLoading}
+                className="flex-1"
                 size="lg"
-                data-testid="button-save-offline"
+                data-testid="button-submit-case"
               >
-                Save Offline
+                {isLoading ? "Submitting..." : "Submit Report"}
               </Button>
-            )}
-          </div>
+              
+              {onSaveOffline && (
+                <Button 
+                  variant="outline"
+                  onClick={handleSaveOffline}
+                  disabled={!isValid}
+                  size="lg"
+                  data-testid="button-save-offline"
+                >
+                  Save Offline
+                </Button>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
