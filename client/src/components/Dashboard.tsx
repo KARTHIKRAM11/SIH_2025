@@ -135,11 +135,19 @@ function DashboardContent() {
     }
   }, [])
 
-  const handleLogin = (phoneNumber: string, otp: string) => {
-    console.log("Login successful:", phoneNumber, otp)
+  const handleLogin = (phoneNumber: string, otp: string, role: string, language: string) => {
+    console.log("Login successful:", phoneNumber, otp, "Role:", role, "Language:", language)
     // For testing: allow any 6-digit code to login
     if (otp.length === 6) {
-      setCurrentScreen("onboarding")
+      // Set user data directly since role and language are now selected during login
+      setUser({
+        phoneNumber,
+        role,
+        villageName: "Majuli", // Default village as per spec
+        language
+      })
+      console.log("User data set:", { phoneNumber, role, villageName: "Majuli", language })
+      setCurrentScreen("dashboard")
     }
   }
 
