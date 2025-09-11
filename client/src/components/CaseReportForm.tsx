@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Textarea } from "@/components/ui/textarea"
 import SymptomCheckList from "./SymptomCheckList"
-import { User, Calendar } from "lucide-react"
+import { User, Calendar, Mic, MicOff, Camera, X, Play, Square } from "lucide-react"
 
 interface CaseData {
   patientAge: string
@@ -15,6 +15,8 @@ interface CaseData {
   symptoms: string[]
   severity: "mild" | "moderate" | "severe" | ""
   notes: string
+  voiceNotes: string[] // Base64 encoded audio data
+  photos: string[] // Base64 encoded image data or file URLs
 }
 
 interface CaseReportFormProps {
@@ -38,7 +40,17 @@ export default function CaseReportForm({
     symptoms: [],
     severity: "",
     notes: "",
+    voiceNotes: [],
+    photos: [],
   })
+
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false)
+  const [recordingDuration, setRecordingDuration] = useState(0)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const audioStreamRef = useRef<MediaStream | null>(null)
+  const durationIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const handleSubmit = () => {
     if (caseData.patientAge && caseData.patientGender && caseData.severity) {
@@ -52,6 +64,109 @@ export default function CaseReportForm({
       console.log("Saving case offline:", caseData)
       onSaveOffline(caseData)
     }
+  }
+
+  // Voice recording functions
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      audioStreamRef.current = stream
+      
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+      
+      const audioChunks: Blob[] = []
+      
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunks.push(event.data)
+      }
+      
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' })
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          const base64String = reader.result as string
+          setCaseData(prev => ({
+            ...prev,
+            voiceNotes: [...prev.voiceNotes, base64String]
+          }))
+        }
+        reader.readAsDataURL(audioBlob)
+        
+        // Clean up
+        stream.getTracks().forEach(track => track.stop())
+        audioStreamRef.current = null
+      }
+      
+      mediaRecorder.start()
+      setIsRecording(true)
+      setRecordingDuration(0)
+      
+      // Start duration timer
+      durationIntervalRef.current = setInterval(() => {
+        setRecordingDuration(prev => prev + 1)
+      }, 1000)
+      
+    } catch (error) {
+      console.error('Error accessing microphone:', error)
+      alert('Could not access microphone. Please check permissions.')
+    }
+  }
+  
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop()
+      setIsRecording(false)
+      
+      if (durationIntervalRef.current) {
+        clearInterval(durationIntervalRef.current)
+      }
+    }
+  }
+  
+  const removeVoiceNote = (index: number) => {
+    setCaseData(prev => ({
+      ...prev,
+      voiceNotes: prev.voiceNotes.filter((_, i) => i !== index)
+    }))
+  }
+  
+  // Photo handling functions
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files
+    if (files) {
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader()
+          reader.onloadend = () => {
+            const base64String = reader.result as string
+            setCaseData(prev => ({
+              ...prev,
+              photos: [...prev.photos, base64String]
+            }))
+          }
+          reader.readAsDataURL(file)
+        }
+      })
+    }
+    
+    // Clear input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
+  
+  const removePhoto = (index: number) => {
+    setCaseData(prev => ({
+      ...prev,
+      photos: prev.photos.filter((_, i) => i !== index)
+    }))
+  }
+  
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
   const isValid = caseData.patientAge && caseData.patientGender && caseData.severity
@@ -155,6 +270,132 @@ export default function CaseReportForm({
               disabled={isReadOnly}
             />
           </div>
+
+          {/* Voice Notes Section */}
+          {!isReadOnly && (
+            <div className="space-y-4">
+              <Label>Voice Notes</Label>
+              
+              <div className="flex items-center space-x-3">
+                {!isRecording ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={startRecording}
+                    className="flex items-center space-x-2"
+                    data-testid="button-start-recording"
+                  >
+                    <Mic className="w-4 h-4" />
+                    <span>Record Voice Note</span>
+                  </Button>
+                ) : (
+                  <div className="flex items-center space-x-3">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={stopRecording}
+                      className="flex items-center space-x-2"
+                      data-testid="button-stop-recording"
+                    >
+                      <Square className="w-4 h-4" />
+                      <span>Stop Recording</span>
+                    </Button>
+                    <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                      <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                      <span>Recording... {formatDuration(recordingDuration)}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {caseData.voiceNotes.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Recorded Voice Notes:</p>
+                  {caseData.voiceNotes.map((note, index) => (
+                    <div key={index} className="flex items-center justify-between bg-muted/30 rounded-lg p-3">
+                      <div className="flex items-center space-x-2">
+                        <Play className="w-4 h-4 text-primary" />
+                        <span className="text-sm">Voice Note {index + 1}</span>
+                        <audio controls className="h-8">
+                          <source src={note} type="audio/webm" />
+                        </audio>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeVoiceNote(index)}
+                        data-testid={`button-remove-voice-${index}`}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Photos Section */}
+          {!isReadOnly && (
+            <div className="space-y-4">
+              <Label>Photos</Label>
+              
+              <div className="flex items-center space-x-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center space-x-2"
+                  data-testid="button-add-photo"
+                >
+                  <Camera className="w-4 h-4" />
+                  <span>Add Photo</span>
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  Take a photo or upload from gallery
+                </p>
+              </div>
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                multiple
+                onChange={handlePhotoUpload}
+                className="hidden"
+                data-testid="input-photo-upload"
+              />
+
+              {caseData.photos.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Uploaded Photos:</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {caseData.photos.map((photo, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={photo}
+                          alt={`Case photo ${index + 1}`}
+                          className="w-full h-24 object-cover rounded-lg border"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => removePhoto(index)}
+                          className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                          data-testid={`button-remove-photo-${index}`}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           
           {!isReadOnly && (
             <div className="flex space-x-3 pt-4">
