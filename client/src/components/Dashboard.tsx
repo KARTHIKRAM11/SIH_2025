@@ -10,6 +10,7 @@ import RoleSelector from "./RoleSelector"
 import LoginForm from "./LoginForm"
 import CaseReportForm from "./CaseReportForm"
 import WaterQualityForm from "./WaterQualityForm"
+import WaterDataScreen from "./WaterDataScreen"
 import TestingInstructions from "./TestingInstructions"
 import SplashScreen from "./SplashScreen"
 import { ThemeProvider, useTheme } from "./ThemeProvider"
@@ -330,14 +331,15 @@ function DashboardContent() {
       
       case "water-data":
         return (
-          <WaterQualityForm
-            villageName={user?.villageName || "Village"}
+          <WaterDataScreen
+            villageName={user?.villageName || "Majuli"}
             onSubmit={(data) => {
               console.log("Water data submitted:", data)
               setCurrentScreen("dashboard")
             }}
             onSaveOffline={(data) => console.log("Water data saved offline:", data)}
-            isReadOnly={!hasWritePermissions(user?.role || "")}
+            isLoading={false}
+            hasWritePermissions={hasWritePermissions(user?.role || "")}
           />
         )
         
