@@ -148,6 +148,80 @@ const mockEducationMaterials = [
   }
 ]
 
+//todo: remove mock functionality
+const mockCaseReports = [
+  {
+    type: "Diarrhea Case",
+    severity: "Medium",
+    location: "Tengapani Village",
+    reporter: "ASHA Worker Priyanka",
+    date: "11 Sep 2025",
+    synced: true,
+    hasVoiceNote: true,
+    hasPhotos: false,
+    photoCount: 0
+  },
+  {
+    type: "Fever Outbreak",
+    severity: "High", 
+    location: "Kamalabari Area",
+    reporter: "Dr. Raj Kumar",
+    date: "10 Sep 2025",
+    synced: false,
+    hasVoiceNote: false,
+    hasPhotos: true,
+    photoCount: 2
+  },
+  {
+    type: "Stomach Pain",
+    severity: "Low",
+    location: "Majuli Main Road",
+    reporter: "Village Volunteer",
+    date: "09 Sep 2025", 
+    synced: true,
+    hasVoiceNote: true,
+    hasPhotos: true,
+    photoCount: 1
+  }
+]
+
+//todo: remove mock functionality
+const mockWaterReports = [
+  {
+    source: "Majuli Main Well",
+    status: "Unsafe",
+    pH: "9.2",
+    turbidity: "5.4",
+    temperature: "28",
+    location: "Kamalabari",
+    tester: "ASHA Priyanka",
+    date: "11 Sep 2025",
+    synced: true
+  },
+  {
+    source: "Community Tube Well",
+    status: "Caution", 
+    pH: "7.8",
+    turbidity: "3.1",
+    temperature: "25",
+    location: "Tengapani",
+    tester: "Health Worker Raj",
+    date: "10 Sep 2025",
+    synced: false
+  },
+  {
+    source: "Handpump Station",
+    status: "Safe",
+    pH: "7.2", 
+    turbidity: "1.2",
+    temperature: "24",
+    location: "Village Center",
+    tester: "Dr. Kumar",
+    date: "09 Sep 2025",
+    synced: true
+  }
+]
+
 function ThemeToggle() {
   const { theme, toggleTheme } = useTheme()
   
@@ -176,6 +250,7 @@ function DashboardContent() {
   const [selectedRole, setSelectedRole] = useState("")
   const [selectedVillage, setSelectedVillage] = useState("")
   const [selectedLanguage, setSelectedLanguage] = useState("en")
+  const [reportTab, setReportTab] = useState<'cases' | 'water'>('cases')
 
   //todo: remove mock functionality
   useEffect(() => {
@@ -658,16 +733,179 @@ Contact local health authorities for assistance.`
         
       case "reports":
         return (
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold">Reports & Analytics</h2>
-            <img 
-              src={healthStatusImage} 
-              alt="Health Status Overview"
-              className="w-full max-w-lg mx-auto rounded-lg"
-            />
-            <p className="text-muted-foreground">
-              Detailed reports and trend analysis will be available here
-            </p>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h2 className="text-2xl font-bold">Reports & Sync</h2>
+                <p className="text-muted-foreground">Track data submissions and sync status for {user?.villageName || 'Majuli'}</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                <span className="text-sm font-medium">{isOnline ? 'Online' : 'Offline'}</span>
+              </div>
+            </div>
+
+            {/* Sync Status Bar */}
+            <div className="bg-card border rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold">Sync Status</h3>
+                <Button 
+                  size="sm" 
+                  variant={isOnline ? "default" : "outline"}
+                  onClick={() => console.log("Manual sync triggered")}
+                  disabled={!isOnline}
+                  data-testid="button-sync-now"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2 rotate-45" />
+                  Sync Now
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold text-green-600">{mockCaseReports.filter(r => r.synced).length}</div>
+                  <div className="text-xs text-muted-foreground">Synced Cases</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold text-orange-600">{mockCaseReports.filter(r => !r.synced).length}</div>
+                  <div className="text-xs text-muted-foreground">Pending Cases</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold text-green-600">{mockWaterReports.filter(r => r.synced).length}</div>
+                  <div className="text-xs text-muted-foreground">Synced Water Data</div>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-2xl font-bold text-orange-600">{mockWaterReports.filter(r => !r.synced).length}</div>
+                  <div className="text-xs text-muted-foreground">Pending Water</div>
+                </div>
+              </div>
+              
+              <div className="text-sm text-muted-foreground">
+                Last sync: {isOnline ? 'Just now' : '2 hours ago'} • Next auto-sync: {isOnline ? '5 minutes' : 'When online'}
+              </div>
+            </div>
+
+            {/* Reports Tabs */}
+            <div className="space-y-4">
+              <div className="flex space-x-1 bg-muted p-1 rounded-lg">
+                <Button 
+                  variant={reportTab === 'cases' ? 'default' : 'ghost'} 
+                  size="sm" 
+                  onClick={() => setReportTab('cases')}
+                  className="flex-1"
+                  data-testid="button-tab-cases"
+                >
+                  Health Cases ({mockCaseReports.length})
+                </Button>
+                <Button 
+                  variant={reportTab === 'water' ? 'default' : 'ghost'} 
+                  size="sm" 
+                  onClick={() => setReportTab('water')}
+                  className="flex-1"
+                  data-testid="button-tab-water"
+                >
+                  Water Data ({mockWaterReports.length})
+                </Button>
+              </div>
+
+              {/* Cases Tab Content */}
+              {reportTab === 'cases' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold">Recent Health Case Reports</h3>
+                    <div className="text-sm text-muted-foreground">Total: {mockCaseReports.length} cases</div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {mockCaseReports.map((caseReport, index) => (
+                      <div key={index} className="bg-card border rounded-lg p-3 space-y-2" data-testid={`card-case-${index}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-2 h-2 rounded-full ${caseReport.synced ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+                            <span className="font-medium">{caseReport.type}</span>
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              caseReport.severity === 'High' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' :
+                              caseReport.severity === 'Medium' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300' :
+                              'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                            }`}>
+                              {caseReport.severity}
+                            </span>
+                          </div>
+                          <div className="text-sm text-muted-foreground">{caseReport.date}</div>
+                        </div>
+                        
+                        <div className="text-sm text-muted-foreground">
+                          Location: {caseReport.location} • Reported by: {caseReport.reporter}
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 text-xs">
+                          <span className={`px-2 py-1 rounded ${caseReport.synced ? 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300' : 'bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-300'}`}>
+                            {caseReport.synced ? 'Synced' : 'Pending Sync'}
+                          </span>
+                          {caseReport.hasVoiceNote && (
+                            <span className="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 px-2 py-1 rounded">
+                              Voice Note
+                            </span>
+                          )}
+                          {caseReport.hasPhotos && (
+                            <span className="bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300 px-2 py-1 rounded">
+                              Photos ({caseReport.photoCount})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Water Data Tab Content */}
+              {reportTab === 'water' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold">Recent Water Quality Reports</h3>
+                    <div className="text-sm text-muted-foreground">Total: {mockWaterReports.length} reports</div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {mockWaterReports.map((waterReport, index) => (
+                      <div key={index} className="bg-card border rounded-lg p-3 space-y-2" data-testid={`card-water-${index}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-2 h-2 rounded-full ${waterReport.synced ? 'bg-green-500' : 'bg-orange-500'}`}></div>
+                            <span className="font-medium">{waterReport.source}</span>
+                            <span className={`px-2 py-1 rounded-full text-xs ${
+                              waterReport.status === 'Safe' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' :
+                              waterReport.status === 'Caution' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300' :
+                              'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                            }`}>
+                              {waterReport.status}
+                            </span>
+                          </div>
+                          <div className="text-sm text-muted-foreground">{waterReport.date}</div>
+                        </div>
+                        
+                        <div className="grid grid-cols-3 gap-2 text-sm">
+                          <div>pH: {waterReport.pH}</div>
+                          <div>Turbidity: {waterReport.turbidity} NTU</div>
+                          <div>Temp: {waterReport.temperature}°C</div>
+                        </div>
+                        
+                        <div className="text-sm text-muted-foreground">
+                          Tested by: {waterReport.tester} • Location: {waterReport.location}
+                        </div>
+                        
+                        <div className="flex items-center space-x-2 text-xs">
+                          <span className={`px-2 py-1 rounded ${waterReport.synced ? 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300' : 'bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-300'}`}>
+                            {waterReport.synced ? 'Synced' : 'Pending Sync'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )
         
