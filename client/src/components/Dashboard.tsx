@@ -46,23 +46,38 @@ const mockAlerts = [
   {
     id: "1",
     type: "danger" as const,
-    title: "High Risk Detected", 
-    message: "High risk detected in Baridhara Village – Boil water before drinking. Immediate action required.",
-    timestamp: "2 min ago"
+    title: "Water Contamination Alert - Majuli",
+    message: "High contamination levels detected at Majuli Main Well (Kamalabari). pH: 9.2, Turbidity: 5.4 NTU. Boil water for 10+ minutes before drinking. Switch to alternate sources immediately.",
+    timestamp: "2 min ago",
+    location: "Kamalabari, Majuli",
+    severity: "Critical"
   },
   {
     id: "2", 
     type: "warning" as const,
-    title: "Water Quality Alert",
-    message: "Caution: Turbidity rising in nearby areas. Monitor water sources carefully.",
-    timestamp: "15 min ago"
+    title: "Health Case Cluster - Majuli",
+    message: "3 diarrhea cases reported in Tengapani village, Majuli in the last 24 hours. Possible water-borne outbreak. Enhanced monitoring required for surrounding areas.",
+    timestamp: "15 min ago",
+    location: "Tengapani, Majuli",
+    severity: "Moderate"
   },
   {
     id: "3",
     type: "info" as const,
-    title: "Health Education Update",
-    message: "New handwashing guidelines available. Check Education section for materials.",
-    timestamp: "1 hour ago"
+    title: "Community Health Update - Majuli",
+    message: "Successfully trained 15 ASHA workers from 5 villages in Majuli on new ORS preparation methods. Training materials now available in Assamese and Mising languages.",
+    timestamp: "1 hour ago",
+    location: "Majuli District",
+    severity: "Low"
+  },
+  {
+    id: "4",
+    type: "warning" as const,
+    title: "Monsoon Water Alert - Majuli",
+    message: "Heavy rainfall predicted for next 3 days in Majuli. Risk of well contamination and flooding. Prepare emergency water storage and purification tablets.",
+    timestamp: "2 hours ago",
+    location: "All Majuli Villages",
+    severity: "Moderate"
   }
 ]
 
@@ -166,6 +181,74 @@ function DashboardContent() {
   // Helper function to check if user has write permissions
   const hasWritePermissions = (userRole: string) => {
     return userRole !== "village_people"
+  }
+
+  // Sharing functionality
+  const handleShareAlert = (alert: any) => {
+    const now = new Date()
+    const formattedDate = now.toLocaleString('en-IN', { 
+      day: '2-digit', 
+      month: 'short', 
+      year: 'numeric', 
+      hour: '2-digit', 
+      minute: '2-digit',
+      timeZone: 'Asia/Kolkata'
+    }) + ' IST'
+
+    const alertMessage = `HEALTH ALERT - ${alert.title}
+
+Location: ${alert.location || 'Majuli'}
+Severity: ${alert.severity || 'Unknown'}
+Issued: ${formattedDate}
+
+Details:
+${alert.message}
+
+IMMEDIATE ACTION REQUIRED - Please follow all safety protocols.
+
+Source: Majuli Health Monitoring System
+Contact local health authorities for assistance.`
+    
+    // Platform-aware SMS sharing
+    const shareViaSMS = () => {
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+      const separator = isIOS ? '&' : '?'
+      const smsUrl = `sms:${separator}body=${encodeURIComponent(alertMessage)}`
+      window.location.href = smsUrl
+    }
+    
+    // WhatsApp sharing
+    const shareViaWhatsApp = () => {
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(alertMessage)}`
+      window.open(whatsappUrl, '_blank')
+    }
+    
+    // Try native sharing first, fallback to WhatsApp
+    if (navigator.share && navigator.canShare && navigator.canShare({ text: alertMessage })) {
+      navigator.share({
+        title: alert.title,
+        text: alertMessage
+      }).catch((err) => {
+        console.log('Native sharing failed, using WhatsApp:', err)
+        shareViaWhatsApp()
+      })
+    } else {
+      // Show sharing options (for now, prioritize WhatsApp but log SMS option)
+      const userChoice = confirm(`Share this alert via WhatsApp?\n\nClick OK for WhatsApp, Cancel for SMS`)
+      if (userChoice) {
+        shareViaWhatsApp()
+        console.log('Alert shared via WhatsApp:', alert.id)
+      } else {
+        shareViaSMS()
+        console.log('Alert shared via SMS:', alert.id)
+      }
+    }
+  }
+  
+  const handleDismissAlert = (alertId: string) => {
+    // In real app, would update state/storage to hide dismissed alerts
+    console.log('Alert dismissed:', alertId)
+    // Could add toast notification here
   }
 
   const handleNavigation = (screen: Screen) => {
@@ -345,19 +428,81 @@ function DashboardContent() {
         
       case "alerts":
         return (
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-center">Village Alerts</h2>
-            {mockAlerts.map(alert => (
-              <AlertCard
-                key={alert.id}
-                type={alert.type}
-                title={alert.title}
-                message={alert.message}
-                timestamp={alert.timestamp}
-                onDismiss={() => console.log("Alert dismissed:", alert.id)}
-                onShare={() => console.log("Alert shared:", alert.id)}
-              />
-            ))}
+          <div className="space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold">Village Health Alerts</h2>
+              <p className="text-muted-foreground">Real-time health and safety notifications for {user?.villageName || 'Majuli'}</p>
+            </div>
+            
+            {/* Critical Alerts First */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 text-sm font-medium text-red-600 dark:text-red-400">
+                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                <span>Critical Alerts ({mockAlerts.filter(a => a.type === 'danger').length})</span>
+              </div>
+              
+              {mockAlerts.filter(alert => alert.type === 'danger').map(alert => (
+                <AlertCard
+                  key={alert.id}
+                  type={alert.type}
+                  title={alert.title}
+                  message={alert.message}
+                  timestamp={alert.timestamp}
+                  onDismiss={() => handleDismissAlert(alert.id)}
+                  onShare={() => handleShareAlert(alert)}
+                />
+              ))}
+            </div>
+            
+            {/* Warning Alerts */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 text-sm font-medium text-orange-600 dark:text-orange-400">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span>Warnings ({mockAlerts.filter(a => a.type === 'warning').length})</span>
+              </div>
+              
+              {mockAlerts.filter(alert => alert.type === 'warning').map(alert => (
+                <AlertCard
+                  key={alert.id}
+                  type={alert.type}
+                  title={alert.title}
+                  message={alert.message}
+                  timestamp={alert.timestamp}
+                  onDismiss={() => handleDismissAlert(alert.id)}
+                  onShare={() => handleShareAlert(alert)}
+                />
+              ))}
+            </div>
+            
+            {/* Info Alerts */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2 text-sm font-medium text-blue-600 dark:text-blue-400">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span>Information ({mockAlerts.filter(a => a.type === 'info').length})</span>
+              </div>
+              
+              {mockAlerts.filter(alert => alert.type === 'info').map(alert => (
+                <AlertCard
+                  key={alert.id}
+                  type={alert.type}
+                  title={alert.title}
+                  message={alert.message}
+                  timestamp={alert.timestamp}
+                  onDismiss={() => handleDismissAlert(alert.id)}
+                  onShare={() => handleShareAlert(alert)}
+                />
+              ))}
+            </div>
+            
+            {mockAlerts.length === 0 && (
+              <div className="text-center py-8 text-muted-foreground">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Bell className="w-8 h-8" />
+                </div>
+                <p>No active alerts for {user?.villageName || 'your village'}</p>
+                <p className="text-sm">All systems are running normally</p>
+              </div>
+            )}
           </div>
         )
         
