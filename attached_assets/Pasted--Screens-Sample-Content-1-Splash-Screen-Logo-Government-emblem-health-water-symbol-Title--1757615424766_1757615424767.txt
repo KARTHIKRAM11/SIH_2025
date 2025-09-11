@@ -1,0 +1,170 @@
+📱 Screens + Sample Content
+1. Splash Screen
+
+Logo: Government emblem + health/water symbol.
+
+Title: Smart Health Monitoring
+
+Subtitle: “Safe Water, Healthy Villages”
+
+Clean background with subtle blue accent.
+
+2. Login & Language Selection
+
+Title: Welcome to Smart Health Monitoring
+
+Fields:
+
+Mobile Number → Placeholder: “Enter mobile number”
+
+OTP → Placeholder: “Enter OTP”
+
+Role Selector (Radio): ASHA Worker / Volunteer / Local Leader
+
+Language Toggle: Assamese | Bengali | Tribal | English
+
+Button: Login (Dark Blue with white text)
+
+3. Home Dashboard
+
+Header (Top Bar):
+
+Village: Majuli (Assam)
+
+Status: High Risk (Red Bar)
+
+Status Cards (3 large blocks):
+
+Water Quality → Unsafe
+
+Cases Reported Today → 12
+
+Outbreak Risk → High
+
+Main Navigation Buttons (4 large icons with labels):
+
+Report Case
+
+Water Data
+
+Alerts
+
+Education
+
+4. Report Case
+
+Title: Report New Case – Village: Majuli
+
+Fields:
+
+Age → Placeholder: “Enter age”
+
+Gender → Options: Male / Female / Other
+
+Symptoms (Checkboxes): Fever, Diarrhea, Vomiting, Dehydration
+
+Severity (Radio): Mild / Moderate / Severe
+
+Attachments:
+
+Add Voice Note (Button)
+
+Upload Photo (Button)
+
+Buttons: Save Offline (Grey) | Submit Now (Blue)
+
+Footer Text: “Last Sync: Not Available (Offline Mode)”
+
+5. Water Data
+
+Title: Enter Water Data – Village: Majuli
+
+Fields:
+
+pH Value → “e.g., 7.2”
+
+Turbidity (NTU) → “e.g., 5 NTU”
+
+Temperature (°C) → “e.g., 25°C”
+
+Chart: Line graph for past 7 days (pH, turbidity, temperature).
+
+Buttons: Save Offline | Sync Data
+
+6. AI Outbreak Prediction
+
+Title: Outbreak Prediction – Village: Majuli
+
+Status:
+
+Current Risk: Medium Risk (Yellow)
+
+Recommendation Box:
+
+“Boil water before drinking.”
+
+“Distribute ORS if diarrhea cases increase.”
+
+Button: View Recommendations
+
+7. Alerts & Notifications
+
+Title: Village Alerts
+
+List of alerts (Sample):
+
+❌ Majuli – High Risk detected, immediate action required.
+
+⚠️ Dhemaji – Turbidity rising, monitor cases.
+
+Button: Share Alert (SMS/WhatsApp)
+
+8. Education
+
+Title: Hygiene & Prevention
+
+Cards with images/icons:
+
+Handwashing Steps
+
+ORS Preparation Guide
+
+Safe Water Storage
+
+Hygiene Do’s & Don’ts
+
+Works fully offline.
+
+9. Reports & Sync
+
+Title: My Reports – Village: Majuli
+
+Tabs:
+
+Cases Reported → Example: “12 Sept 2025 – 2 cases submitted”
+
+Water Data → Example: “pH: 6.8, Turbidity: 8 NTU, Temp: 27°C”
+
+Sync Info: “Last Sync: 12 Sept 2025, 10:15 AM”
+
+Button: Sync Now
+
+10. Profile & Settings
+
+Title: Profile
+
+Fields:
+
+Name: [User Name]
+
+Role: [ASHA Worker / Volunteer / Leader]
+
+Village: [Majuli]
+
+Language Switcher: Assamese | Bengali | Tribal | English
+
+Buttons:
+
+Logout
+
+Help & Support

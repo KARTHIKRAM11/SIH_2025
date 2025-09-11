@@ -11,6 +11,7 @@ import LoginForm from "./LoginForm"
 import CaseReportForm from "./CaseReportForm"
 import WaterQualityForm from "./WaterQualityForm"
 import TestingInstructions from "./TestingInstructions"
+import SplashScreen from "./SplashScreen"
 import { ThemeProvider, useTheme } from "./ThemeProvider"
 import { 
   Plus, 
@@ -30,7 +31,7 @@ import healthStatusImage from '@assets/generated_images/Health_status_indicator_
 import waterSafetyImage from '@assets/generated_images/Water_safety_education_infographic_9307d9c9.png'
 import villageImage from '@assets/generated_images/Rural_village_community_illustration_b8b82f5a.png'
 
-type Screen = "testing-guide" | "login" | "onboarding" | "dashboard" | "case-report" | "water-data" | "alerts" | "education" | "reports" | "settings"
+type Screen = "splash" | "testing-guide" | "login" | "onboarding" | "dashboard" | "case-report" | "water-data" | "alerts" | "education" | "reports" | "settings" | "ai-prediction"
 
 interface User {
   phoneNumber: string
@@ -111,7 +112,7 @@ function ThemeToggle() {
 }
 
 function DashboardContent() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>("testing-guide")
+  const [currentScreen, setCurrentScreen] = useState<Screen>("splash")
   const [user, setUser] = useState<User | null>(null)
   const [isOnline, setIsOnline] = useState(true)
   // Always declare these hooks to avoid conditional hook calls
@@ -168,6 +169,10 @@ function DashboardContent() {
     } else {
       setCurrentScreen("dashboard")
     }
+  }
+
+  if (currentScreen === "splash") {
+    return <SplashScreen onComplete={() => setCurrentScreen("login")} />
   }
 
   if (currentScreen === "testing-guide") {
