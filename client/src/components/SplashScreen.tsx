@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Shield, Droplets, Heart, Users } from "lucide-react"
 
@@ -8,30 +8,8 @@ interface SplashScreenProps {
 
 export default function SplashScreen({ onComplete }: SplashScreenProps) {
   const [isVisible, setIsVisible] = useState(true)
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
-  const completedRef = useRef(false)
-
-  useEffect(() => {
-    // Auto-advance after 3 seconds, or user can tap to continue
-    timerRef.current = setTimeout(() => {
-      handleContinue()
-    }, 3000)
-
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current)
-      }
-    }
-  }, [])
 
   const handleContinue = () => {
-    if (completedRef.current) return // Prevent double execution
-    
-    completedRef.current = true
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-    }
-    
     setIsVisible(false)
     setTimeout(onComplete, 300) // Allow fade out animation
   }
@@ -68,9 +46,12 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         "Safe Water, Healthy Villages"
       </p>
 
-      {/* Community Icon */}
+      {/* Community Icon - Clickable for Role Selection */}
       <div className="mb-8">
-        <div className="w-16 h-16 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-lg">
+        <div 
+          onClick={handleContinue}
+          className="w-16 h-16 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-lg cursor-pointer hover:shadow-xl transition-shadow duration-200"
+        >
           <Users className="w-8 h-8 text-blue-600 dark:text-blue-400" />
         </div>
       </div>
@@ -84,9 +65,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
         Continue
       </Button>
 
-      {/* Auto-advance indicator */}
+      {/* Instructions */}
       <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-        Tap to continue or wait 3 seconds
+        Tap the icon above or continue button to select your role
       </p>
     </div>
   )

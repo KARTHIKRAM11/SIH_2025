@@ -3,21 +3,18 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Smartphone, Lock, UserCheck, Users, Crown, User } from "lucide-react"
+import { Smartphone, Lock } from "lucide-react"
 
 interface LoginFormProps {
   onLogin: (phoneNumber: string, otp: string, role: string, language: string) => void
   isLoading?: boolean
+  selectedRole: string
 }
 
-export default function LoginForm({ onLogin, isLoading = false }: LoginFormProps) {
+export default function LoginForm({ onLogin, isLoading = false, selectedRole }: LoginFormProps) {
   const [step, setStep] = useState<"phone" | "otp">("phone")
   const [phoneNumber, setPhoneNumber] = useState("")
   const [otp, setOtp] = useState("")
-  const [selectedRole, setSelectedRole] = useState("")
-  const [selectedLanguage, setSelectedLanguage] = useState("english")
 
   const handleSendOTP = () => {
     if (phoneNumber) {
@@ -27,10 +24,10 @@ export default function LoginForm({ onLogin, isLoading = false }: LoginFormProps
   }
 
   const handleVerifyOTP = () => {
-    if (otp && otp.length === 6 && selectedRole) {
+    if (otp && otp.length === 6) {
       console.log("Verifying OTP:", otp)
       // For testing: accept any 6-digit code
-      onLogin(phoneNumber, otp, selectedRole, selectedLanguage)
+      onLogin(phoneNumber, otp, selectedRole, "english")
     }
   }
 
@@ -43,9 +40,6 @@ export default function LoginForm({ onLogin, isLoading = false }: LoginFormProps
     <div className="max-w-md mx-auto">
       <Card>
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
-            <Smartphone className="w-8 h-8 text-primary" />
-          </div>
           <CardTitle className="text-2xl">
             Welcome to Smart Health Monitoring
           </CardTitle>
@@ -76,73 +70,10 @@ export default function LoginForm({ onLogin, isLoading = false }: LoginFormProps
                   />
                 </div>
               </div>
-
-              {/* Role Selector */}
-              <div className="space-y-3">
-                <Label>Select Your Role</Label>
-                <RadioGroup
-                  value={selectedRole}
-                  onValueChange={setSelectedRole}
-                  className="grid grid-cols-2 gap-3"
-                >
-                  <div className="flex items-center space-x-2 border rounded-lg p-3 hover-elevate">
-                    <RadioGroupItem value="asha_worker" id="asha" />
-                    <div className="flex items-center space-x-2">
-                      <UserCheck className="w-4 h-4 text-primary" />
-                      <Label htmlFor="asha" className="text-sm font-medium cursor-pointer">
-                        ASHA Worker
-                      </Label>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 border rounded-lg p-3 hover-elevate">
-                    <RadioGroupItem value="volunteer" id="volunteer" />
-                    <div className="flex items-center space-x-2">
-                      <Users className="w-4 h-4 text-primary" />
-                      <Label htmlFor="volunteer" className="text-sm font-medium cursor-pointer">
-                        Volunteer
-                      </Label>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 border rounded-lg p-3 hover-elevate">
-                    <RadioGroupItem value="local_leader" id="leader" />
-                    <div className="flex items-center space-x-2">
-                      <Crown className="w-4 h-4 text-primary" />
-                      <Label htmlFor="leader" className="text-sm font-medium cursor-pointer">
-                        Local Leader
-                      </Label>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 border rounded-lg p-3 hover-elevate">
-                    <RadioGroupItem value="village_people" id="villager" />
-                    <div className="flex items-center space-x-2">
-                      <User className="w-4 h-4 text-primary" />
-                      <Label htmlFor="villager" className="text-sm font-medium cursor-pointer">
-                        Village People
-                      </Label>
-                    </div>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              {/* Language Toggle */}
-              <div className="space-y-3">
-                <Label>Select Language</Label>
-                <Tabs value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                  <TabsList className="grid w-full grid-cols-4">
-                    <TabsTrigger value="assamese" className="text-xs">Assamese</TabsTrigger>
-                    <TabsTrigger value="bengali" className="text-xs">Bengali</TabsTrigger>
-                    <TabsTrigger value="tribal" className="text-xs">Tribal</TabsTrigger>
-                    <TabsTrigger value="english" className="text-xs">English</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
               
               <Button 
                 onClick={handleSendOTP}
-                disabled={!phoneNumber || !selectedRole || isLoading}
+                disabled={!phoneNumber || isLoading}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 size="lg"
                 data-testid="button-send-otp"
@@ -169,16 +100,15 @@ export default function LoginForm({ onLogin, isLoading = false }: LoginFormProps
                 </div>
               </div>
 
-              {/* Show selected role and language */}
+              {/* Show selected role */}
               <div className="bg-muted/30 rounded-lg p-3 space-y-1">
                 <p className="text-sm"><strong>Role:</strong> {selectedRole.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
-                <p className="text-sm"><strong>Language:</strong> {selectedLanguage.charAt(0).toUpperCase() + selectedLanguage.slice(1)}</p>
               </div>
               
               <div className="space-y-2">
                 <Button 
                   onClick={handleVerifyOTP}
-                  disabled={otp.length !== 6 || !selectedRole || isLoading}
+                  disabled={otp.length !== 6 || isLoading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                   size="lg"
                   data-testid="button-login"
@@ -192,7 +122,7 @@ export default function LoginForm({ onLogin, isLoading = false }: LoginFormProps
                   className="w-full"
                   data-testid="button-back"
                 >
-                  Change Details
+                  Change Phone Number
                 </Button>
               </div>
               

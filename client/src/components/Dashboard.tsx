@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import VillageHeader from "./VillageHeader"
 import StatusCard from "./StatusCard"
 import ActionButton from "./ActionButton"
@@ -13,6 +14,7 @@ import WaterQualityForm from "./WaterQualityForm"
 import WaterDataScreen from "./WaterDataScreen"
 import TestingInstructions from "./TestingInstructions"
 import SplashScreen from "./SplashScreen"
+import RoleSelectionScreen from "./RoleSelectionScreen"
 import { ThemeProvider, useTheme } from "./ThemeProvider"
 import { 
   Plus, 
@@ -37,7 +39,7 @@ import healthStatusImage from '@assets/generated_images/Health_status_indicator_
 import waterSafetyImage from '@assets/generated_images/Water_safety_education_infographic_9307d9c9.png'
 import villageImage from '@assets/generated_images/Rural_village_community_illustration_b8b82f5a.png'
 
-type Screen = "splash" | "testing-guide" | "login" | "onboarding" | "dashboard" | "case-report" | "water-data" | "alerts" | "education" | "reports" | "settings" | "ai-prediction"
+type Screen = "splash" | "role-selection" | "testing-guide" | "login" | "onboarding" | "dashboard" | "case-report" | "water-data" | "alerts" | "education" | "reports" | "settings" | "ai-prediction"
 
 interface User {
   phoneNumber: string
@@ -233,6 +235,7 @@ function ThemeToggle() {
       size="icon"
       onClick={toggleTheme}
       data-testid="button-theme-toggle"
+      className="h-8 w-8 sm:h-10 sm:w-10"
     >
       {theme === "light" ? (
         <Moon className="w-4 h-4" />
@@ -263,9 +266,14 @@ function DashboardContent() {
         const parsedUser = JSON.parse(savedUser)
         setUser(parsedUser)
         setCurrentScreen("dashboard")
+        console.log("User loaded from localStorage:", parsedUser)
       } catch (error) {
-        console.log("Failed to load saved user data")
+        console.log("Failed to load saved user data, clearing localStorage")
+        localStorage.removeItem('healthMonitorUser')
+        setCurrentScreen("splash")
       }
+    } else {
+      setCurrentScreen("splash")
     }
   }, [])
 
@@ -288,13 +296,16 @@ function DashboardContent() {
     // For testing: allow any 6-digit code to login
     if (otp.length === 6) {
       // Set user data directly since role and language are now selected during login
-      setUser({
+      const userData = {
         phoneNumber,
         role,
         villageName: "Majuli", // Default village as per spec
         language
-      })
-      console.log("User data set:", { phoneNumber, role, villageName: "Majuli", language })
+      }
+      setUser(userData)
+      // Save to localStorage for persistence
+      localStorage.setItem('healthMonitorUser', JSON.stringify(userData))
+      console.log("User data set and saved:", userData)
       setCurrentScreen("dashboard")
     }
   }
@@ -396,7 +407,15 @@ Contact local health authorities for assistance.`
   }
 
   if (currentScreen === "splash") {
-    return <SplashScreen onComplete={() => setCurrentScreen("login")} />
+    console.log("Rendering splash screen")
+    return <SplashScreen onComplete={() => setCurrentScreen("role-selection")} />
+  }
+
+  if (currentScreen === "role-selection") {
+    return <RoleSelectionScreen onRoleSelect={(role) => {
+      setSelectedRole(role)
+      setCurrentScreen("login")
+    }} />
   }
 
   if (currentScreen === "testing-guide") {
@@ -412,17 +431,12 @@ Contact local health authorities for assistance.`
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
           <div className="text-center space-y-4">
-            <img 
-              src={villageImage} 
-              alt="Village Community"
-              className="w-32 h-32 mx-auto rounded-lg object-cover"
-            />
             <div>
               <h1 className="text-3xl font-bold text-foreground">Smart Health Monitor</h1>
               <p className="text-muted-foreground">Community Health Tracking for Rural Villages</p>
             </div>
           </div>
-          <LoginForm onLogin={handleLogin} />
+          <LoginForm onLogin={handleLogin} selectedRole={selectedRole} />
         </div>
       </div>
     )
@@ -1039,7 +1053,8 @@ Contact local health authorities for assistance.`
               className="w-full"
               onClick={() => {
                 setUser(null)
-                setCurrentScreen("login")
+                localStorage.removeItem('healthMonitorUser')
+                setCurrentScreen("splash")
               }}
               data-testid="button-logout"
             >
@@ -1050,56 +1065,72 @@ Contact local health authorities for assistance.`
         
       case "ai-prediction":
         return (
-          <div className="space-y-6">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto">
-                <TrendingUp className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              </div>
-              <h2 className="text-2xl font-bold">AI Outbreak Prediction</h2>
-              <p className="text-muted-foreground max-w-md mx-auto">
-                Artificial Intelligence analyzes health patterns and water quality data to predict potential health risks in your community.
-              </p>
-            </div>
-            
-            <div className="bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg p-6">
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                <h3 className="text-lg font-semibold text-green-800 dark:text-green-200">Current Risk Assessment</h3>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-700 dark:text-green-300">LOW</p>
-                  <p className="text-sm text-green-600 dark:text-green-400">Overall Risk</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">87%</p>
-                  <p className="text-sm text-blue-600 dark:text-blue-400">Water Safety Score</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">↓15%</p>
-                  <p className="text-sm text-orange-600 dark:text-orange-400">Trend (7 days)</p>
-                </div>
-              </div>
-              
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
-                <h4 className="font-medium text-green-800 dark:text-green-200 mb-2">AI Recommendations:</h4>
-                <ul className="text-sm text-green-700 dark:text-green-300 space-y-1">
-                  <li>• Continue current water monitoring schedule</li>
-                  <li>• Maintain good hygiene practices education</li>
-                  <li>• Monitor seasonal patterns approaching monsoon</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Prediction model last updated: 2 hours ago</p>
-              <p>Based on 30 days of health and water quality data</p>
+          <div className="space-y-4 sm:space-y-6">
+            <div className="mx-auto max-w-3xl">
+              <Card className="border-2">
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-xl sm:text-2xl font-semibold">AI Outbreak Prediction</CardTitle>
+                  <CardDescription className="text-sm sm:text-base">
+                    Official health risk assessment generated from recent water quality and case trends.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <div className="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950 p-4 sm:p-5">
+                    <div className="flex items-start space-x-3">
+                      <div className="mt-1 h-3 w-3 rounded-full bg-orange-500"></div>
+                      <div className="flex-1 space-y-3">
+                        <h3 className="text-base sm:text-lg font-semibold text-orange-900 dark:text-orange-100">
+                          ⚠ MEDIUM Risk Alert — Immediate Attention Required
+                        </h3>
+                        <p className="text-sm sm:text-base text-muted-foreground">
+                          Water quality analysis indicates potential health risks. Diarrhea shows highest concern (65% probability).
+                        </p>
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          <div className="rounded-md bg-white p-4 dark:bg-gray-800 border border-card-border">
+                            <h4 className="mb-2 text-sm font-semibold text-red-800 dark:text-red-200">🚨 Critical Alerts</h4>
+                            <ul className="list-disc space-y-1 pl-5 text-sm sm:text-base text-red-700 dark:text-red-300">
+                              <li>E.coli levels elevated (45 CFU/100ml)</li>
+                              <li>Turbidity increased (8.5 NTU)</li>
+                              <li>Temperature favorable for bacteria (32°C)</li>
+                            </ul>
+                          </div>
+
+                          <div className="rounded-md bg-white p-4 dark:bg-gray-800 border border-card-border">
+                            <h4 className="mb-2 text-sm font-semibold text-orange-800 dark:text-orange-200">🦠 Disease Analysis</h4>
+                            <ul className="list-disc space-y-1 pl-5 text-sm sm:text-base text-orange-800 dark:text-orange-200">
+                              <li>Cholera: MEDIUM (45% risk) 8–12 cases in 2–5 days</li>
+                              <li>Diarrhea: HIGH (65% risk) 15–25 cases in 1–3 days</li>
+                              <li>Typhoid: LOW (20% risk) 2–4 cases in 1–2 weeks</li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <div className="rounded-md bg-white p-4 dark:bg-gray-800 border border-card-border">
+                          <h4 className="mb-2 text-sm font-semibold text-blue-800 dark:text-blue-200">⚡ Immediate Actions Required</h4>
+                          <ul className="list-disc space-y-1 pl-5 text-sm sm:text-base text-blue-800 dark:text-blue-200">
+                            <li>Increase monitoring to every 2 hours</li>
+                            <li>Issue preventive health advisory</li>
+                            <li>Prepare medical facilities</li>
+                            <li>Distribute water purification tablets</li>
+                          </ul>
+                        </div>
+
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                          <p className="text-xs sm:text-sm text-muted-foreground">📅 Critical Period: Next 24–48 hours</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">Source: Automated model • v1.0</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         )
         
       default: // dashboard
+        console.log("Rendering dashboard screen, user:", user)
         return (
           <div className="space-y-6">
             {/* Risk Status Bar */}
@@ -1120,7 +1151,7 @@ Contact local health authorities for assistance.`
             </div>
 
             {/* Status Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               <StatusCard
                 title="Water Sources"
                 value="12/15"
@@ -1150,7 +1181,7 @@ Contact local health authorities for assistance.`
             </div>
 
             {/* Main Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {hasWritePermissions(user?.role || "") && (
                 <ActionButton
                   title="Report Case"
@@ -1160,21 +1191,9 @@ Contact local health authorities for assistance.`
               )}
               
               <ActionButton
-                title={hasWritePermissions(user?.role || "") ? "Water Data" : "View Water"}
-                icon={Droplets}
-                onClick={() => handleNavigation("water-data")}
-              />
-              
-              <ActionButton
-                title="Alerts"
-                icon={Bell}
-                onClick={() => handleNavigation("alerts")}
-              />
-              
-              <ActionButton
-                title="Education"
-                icon={BookOpen}
-                onClick={() => handleNavigation("education")}
+                title="AI Prediction"
+                icon={TrendingUp}
+                onClick={() => handleNavigation("ai-prediction")}
               />
             </div>
 
@@ -1201,15 +1220,8 @@ Contact local health authorities for assistance.`
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="sticky top-0 z-40">
-        <VillageHeader
-          villageName={user?.villageName || "Village"}
-          status="safe" //todo: remove mock functionality - get from actual data
-          isOnline={isOnline}
-          lastSync="2 min ago" //todo: remove mock functionality
-        />
-        
-        {currentScreen !== "dashboard" && (
-          <div className="bg-card border-b px-4 py-2 flex items-center justify-between">
+        <div className="bg-card border-b px-3 py-2 sm:px-4 flex items-center justify-between">
+          {currentScreen !== "dashboard" ? (
             <Button 
               variant="ghost" 
               size="icon" 
@@ -1218,54 +1230,96 @@ Contact local health authorities for assistance.`
             >
               <ArrowLeft className="w-4 h-4" />
             </Button>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <h1 className="text-base sm:text-lg font-semibold">Smart Health Monitor</h1>
+            </div>
+          )}
+          <div className="flex items-center space-x-1 sm:space-x-2">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => handleNavigation("settings")}
+              data-testid="button-settings-top"
+              className="h-8 w-8 sm:h-10 sm:w-10"
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
             <ThemeToggle />
           </div>
-        )}
+        </div>
+        
+        <VillageHeader
+          villageName={user?.villageName || "Village"}
+          status="safe" //todo: remove mock functionality - get from actual data
+          isOnline={isOnline}
+          lastSync="2 min ago" //todo: remove mock functionality
+        />
       </div>
 
       {/* Content */}
-      <div className="p-4 pb-20">
+      <div className="p-3 pb-20 sm:p-4">
         {renderContent()}
       </div>
 
       {/* Bottom Navigation - only show on dashboard */}
       {currentScreen === "dashboard" && (
-        <div className="fixed bottom-0 left-0 right-0 bg-card border-t px-4 py-3">
+        <div className="fixed bottom-0 left-0 right-0 bg-card border-t px-2 py-2">
           <div className="flex justify-around">
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => handleNavigation("dashboard")}
-              className="flex flex-col space-y-1"
+              className="flex flex-col space-y-1 px-2"
               data-testid="nav-dashboard"
             >
-              <BarChart3 className="w-5 h-5" />
+              <BarChart3 className="w-4 h-4" />
               <span className="text-xs">Dashboard</span>
             </Button>
             
             <Button 
               variant="ghost" 
               size="sm"
+              onClick={() => handleNavigation("water-data")}
+              className="flex flex-col space-y-1 px-2"
+              data-testid="nav-water"
+            >
+              <Droplets className="w-4 h-4" />
+              <span className="text-xs">Water</span>
+            </Button>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
               onClick={() => handleNavigation("reports")}
-              className="flex flex-col space-y-1"
+              className="flex flex-col space-y-1 px-2"
               data-testid="nav-reports"
             >
-              <BarChart3 className="w-5 h-5" />
+              <BarChart3 className="w-4 h-4" />
               <span className="text-xs">Reports</span>
             </Button>
             
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => handleNavigation("settings")}
-              className="flex flex-col space-y-1"
-              data-testid="nav-settings"
+              onClick={() => handleNavigation("alerts")}
+              className="flex flex-col space-y-1 px-2"
+              data-testid="nav-alerts"
             >
-              <Settings className="w-5 h-5" />
-              <span className="text-xs">Settings</span>
+              <Bell className="w-4 h-4" />
+              <span className="text-xs">Alerts</span>
             </Button>
             
-            <ThemeToggle />
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => handleNavigation("education")}
+              className="flex flex-col space-y-1 px-2"
+              data-testid="nav-education"
+            >
+              <BookOpen className="w-4 h-4" />
+              <span className="text-xs">Education</span>
+            </Button>
           </div>
         </div>
       )}
