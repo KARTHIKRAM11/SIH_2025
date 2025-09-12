@@ -1071,7 +1071,7 @@ Contact local health authorities for assistance.`
                 <CardHeader className="pb-4">
                   <CardTitle className="text-xl sm:text-2xl font-semibold">AI Outbreak Prediction</CardTitle>
                   <CardDescription className="text-sm sm:text-base">
-                    Official health risk assessment generated from recent water quality and case trends.
+                    Official health risk assessment generated from recent water quality and case trends. Updated with latest data.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="pt-0">
